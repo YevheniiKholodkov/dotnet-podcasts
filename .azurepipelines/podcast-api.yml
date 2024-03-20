@@ -1,0 +1,6 @@
+stages:
+    - stage: Test
+      jobs:
+        - job: Test
+          steps: 
+            bash: echo Test
