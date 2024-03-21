@@ -1,6 +1,38 @@
-stages:
-    - stage: Test
-      jobs:
-        - job: Test
-          steps: 
-            bash: echo Test
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "src/Services/Podcasts/**"
+      - "deploy/Services/api.bicep"
+      - ".github/workflows/podcast-api.yml"
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "src/Services/Podcasts/**"
+      - ".github/workflows/podcast-api.yml"
+
+pool:
+  vmImage: 'ubuntu-latest'
+  
+jobs:
+  # - job: buildPushDeployStaging
+  #   displayName: "staging"
+  #   condition: ne(variables['Build.SourceBranch'], 'refs/heads/main')
+  #   steps:
+  #     - template: ./.azurepipelines/templates/template-api.yml
+  #       parameters:
+  #         environment: 'staging'
+  
+  - job: buildPushDeployProd
+    displayName: "prod"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    steps:
+      - template: ./.azurepipelines/templates/template-api.yml
+        parameters:
+          environment: 'prod'
