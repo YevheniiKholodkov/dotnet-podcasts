@@ -28,11 +28,11 @@ jobs:
   #     - template: ./.azurepipelines/templates/template-api.yml
   #       parameters:
   #         environment: 'staging'
-  
+
   - job: buildPushDeployProd
     displayName: "prod"
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     steps:
-      - template: ./.azurepipelines/templates/template-api.yml
+      - template: ./templates/template-api.yml
         parameters:
           environment: 'prod'
