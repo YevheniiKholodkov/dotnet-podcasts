@@ -5,7 +5,7 @@ steps:
     displayName: 'Deploy ACR'
     inputs:
       azureSubscription: AzurePodcastConnection
-      scriptType: 'ps'
+      scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
         $deploymentName = 'adobgtask$(Build.BuildNumber)'
