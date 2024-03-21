@@ -31,15 +31,16 @@ jobs:
   #     - template: ./.azurepipelines/templates/template-api.yml
   #       parameters:
   #         environment: 'staging'
-  - deployment: buildPushDeployProd
-      environment: 'prod'
-      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-      pool:
-        vmImage: 'ubuntu-latest'
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-              - template: ./templates/template-api.yml
-                parameters:
-                  environment: 'prod'
+- deployment: buildPushDeployProd
+  displayName: Build Push Deploy Prod
+  environment: 'prod'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - template: ./templates/template-api.yml
+            parameters:
+              environment: 'prod'
