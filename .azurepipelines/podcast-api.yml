@@ -42,5 +42,3 @@ jobs:
       deploy:
         steps:
         - template: templates/template-api.yml
-          parameters:
-            environment: 'prod'

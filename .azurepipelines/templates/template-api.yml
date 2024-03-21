@@ -1,13 +1,4 @@
 
-
-parameters:
-  - name: environment
-    type: string
-    default: 'prod'
-    values:
-      - 'prod'
-      - 'staging'
-
 steps:
   - checkout: self
   - task: AzureCLI@2
