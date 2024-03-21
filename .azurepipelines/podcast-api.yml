@@ -33,7 +33,7 @@ jobs:
   #         environment: 'staging'
 - job: buildPushDeployProd
   displayName: Build Push Deploy Prod
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/ykholodkov/test_azurepipelines')
   pool:
     vmImage: 'ubuntu-latest'
   steps:
