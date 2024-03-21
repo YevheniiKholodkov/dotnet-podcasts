@@ -32,14 +32,14 @@ jobs:
   #       parameters:
   #         environment: 'staging'
   - deployment: buildPushDeployProd
-    environment: ${{ parameters.environment }}
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-    pool:
-      vmImage: 'ubuntu-latest'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - template: ./templates/template-api.yml
-              parameters:
-                environment: 'prod'
+      environment: 'prod'
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      pool:
+        vmImage: 'ubuntu-latest'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - template: ./templates/template-api.yml
+                parameters:
+                  environment: 'prod'
