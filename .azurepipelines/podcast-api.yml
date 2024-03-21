@@ -41,6 +41,6 @@ jobs:
     runOnce:
       deploy:
         steps:
-        - template: ./templates/template-api.yml
+        - template: templates/template-api.yml
           parameters:
             environment: 'prod'
