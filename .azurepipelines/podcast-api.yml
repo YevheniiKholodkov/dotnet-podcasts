@@ -17,6 +17,9 @@ pr:
       - "src/Services/Podcasts/**"
       - ".github/workflows/podcast-api.yml"
 
+variables:
+  - group: 'PodcastProd'
+
 pool:
   vmImage: 'ubuntu-latest'
   
@@ -28,11 +31,15 @@ jobs:
   #     - template: ./.azurepipelines/templates/template-api.yml
   #       parameters:
   #         environment: 'staging'
-
-  - job: buildPushDeployProd
-    displayName: "prod"
+  - deployment: buildPushDeployProd
+    environment: ${{ parameters.environment }}
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-    steps:
-      - template: ./templates/template-api.yml
-        parameters:
-          environment: 'prod'
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: ./templates/template-api.yml
+              parameters:
+                environment: 'prod'

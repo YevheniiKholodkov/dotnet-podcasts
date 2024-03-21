@@ -1,5 +1,4 @@
-variables:
-  - group: 'PodcastProd'
+
 
 parameters:
   - name: environment
@@ -9,49 +8,41 @@ parameters:
       - 'prod'
       - 'staging'
 
-jobs:
-  - deployment: buildPushDeploy
-    environment: ${{ parameters.environment }}
-    pool:
-      vmImage: 'ubuntu-latest'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - checkout: self
-            - task: AzureCLI@2
-              displayName: 'Deploy ACR'
-              inputs:
-                azureSubscription: 'Azure Pipelines'
-                scriptType: 'ps'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  $deploymentName = 'adobgtask$(Build.BuildNumber)'
-                  $resourceGroupName = '$(AZURE_RESOURCE_GROUP_NAME)'
-                  $acrName = '$(ACR_NAME)'
-                  
-                  az deployment group create -n "$($deploymentName)" `
-                     --resource-group  "$($resourceGroupName)" `
-                     --template-file deploy/Services/acr.bicep `
-                     --parameters acrName="$($acrName)"
-            - task: Docker@2
-              displayName: 'Login to ACR'
-              inputs:
-                command: 'login'
-                containerRegistry: YKPodcastACRConnection
-            - task: UseDotNet@2
-              inputs:
-                packageType: 'sdk'
-                version: '7.0.x'
-            - task: DotNetCoreCLI@2
-              displayName: 'Build Podcast Updater'
-              inputs:
-                command: 'publish'
-                publishWebProjects: false
-                projects: 'src/Services/Podcasts/Podcast.Updater.Worker/Podcast.Updater.Worker.csproj'
-                arguments: '-c Release -r linux-x64  -o $(Build.ArtifactStagingDirectory)'
-                zipAfterPublish: True
-             - task: PublishPipelineArtifact@1
-              inputs:
-                targetPath: '$(Build.ArtifactStagingDirectory)' 
-                artifactName: 'Test'
+steps:
+  - checkout: self
+  - task: AzureCLI@2
+    displayName: 'Deploy ACR'
+    inputs:
+      azureSubscription: 'Azure Pipelines'
+      scriptType: 'ps'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $deploymentName = 'adobgtask$(Build.BuildNumber)'
+        $resourceGroupName = '$(AZURE_RESOURCE_GROUP_NAME)'
+        $acrName = '$(ACR_NAME)'
+        
+        az deployment group create -n "$($deploymentName)" `
+            --resource-group  "$($resourceGroupName)" `
+            --template-file deploy/Services/acr.bicep `
+            --parameters acrName="$($acrName)"
+  - task: Docker@2
+    displayName: 'Login to ACR'
+    inputs:
+      command: 'login'
+      containerRegistry: YKPodcastACRConnection
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '7.0.x'
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Podcast Updater'
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'src/Services/Podcasts/Podcast.Updater.Worker/Podcast.Updater.Worker.csproj'
+      arguments: '-c Release -r linux-x64  -o $(Build.ArtifactStagingDirectory)'
+      zipAfterPublish: True
+    - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)' 
+      artifactName: 'Test'
