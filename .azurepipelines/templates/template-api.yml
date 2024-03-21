@@ -33,7 +33,7 @@ steps:
       projects: 'src/Services/Podcasts/Podcast.Updater.Worker/Podcast.Updater.Worker.csproj'
       arguments: '-c Release -r linux-x64  -o $(Build.ArtifactStagingDirectory)'
       zipAfterPublish: True
-    - task: PublishPipelineArtifact@1
+  - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)' 
       artifactName: 'Test'
