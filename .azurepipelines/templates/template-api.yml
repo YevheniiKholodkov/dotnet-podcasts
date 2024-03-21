@@ -4,7 +4,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Deploy ACR'
     inputs:
-      azureSubscription: 'Azure Pipelines'
+      azureSubscription: AzurePodcastConnection
       scriptType: 'ps'
       scriptLocation: 'inlineScript'
       inlineScript: |
