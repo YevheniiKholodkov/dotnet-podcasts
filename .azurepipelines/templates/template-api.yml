@@ -31,5 +31,52 @@ steps:
       command: 'publish'
       publishWebProjects: false
       projects: 'src/Services/Podcasts/Podcast.Updater.Worker/Podcast.Updater.Worker.csproj'
-      arguments: '-c Release -r linux-x64  /t:PublishContainer -o $(Build.ArtifactStagingDirectory) -p ContainerRegistry=$(ACR_NAME).azurecr.io -p ContainerImageTag=$(Build.BuildNumber)'
+      arguments: '-c Release -r linux-x64  /t:PublishContainer -p ContainerRegistry=$(ACR_NAME).azurecr.io -p ContainerImageTag=$(Build.BuildNumber)'
       zipAfterPublish: True
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Podcast API'
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'src/Services/Podcasts/Podcast.API/Podcast.API.csproj'
+      arguments: '-c Release -r linux-x64 -p ContainerRegistry=$(ACR_NAME).azurecr.io -p ContainerImageTag=$(Build.BuildNumber) -p PublishProfile=DefaultContainer'
+      zipAfterPublish: True
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Podcast Ingestion'
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'src/Services/Podcasts/Podcast.Ingestion.Worker/Podcast.Ingestion.Worker.csproj'
+      arguments: '-c Release -r linux-x64  /t:PublishContainer -p ContainerRegistry=$(ACR_NAME).azurecr.io -p ContainerImageTag=$(Build.BuildNumber)'
+      zipAfterPublish: True
+  - task: AzureCLI@2
+    displayName: 'Deploy Container Apps'
+    inputs:
+      azureSubscription: AzurePodcastConnection
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $deploymentName = 'adobgtask$(Build.BuildNumber)'
+        $resourceGroupName = '$(AZURE_RESOURCE_GROUP_NAME)'
+        $arcName = '$(ACR_NAME)'
+        $imageTag = '$(Build.BuildNumber)'
+        $administratorLogin = '$(PODCASTDB_USER_LOGIN)'
+        $administratorLoginPassword = '$(PODCASTDB_USER_PASSWORD)'
+        $storageAccountName = '$(STORAGE_ACCOUNT_NAME)'
+        $serverName = '$(PODCASTDB_SERVER_NAME)'
+        $kubernetesEnvName = '$(KUBERNETES_ENV_NAME)'
+        $workspaceName = '$(WORKSPACE_NAME)'
+        $apiName = '$(API_RESOURCE_NAME)'
+        $updaterName = '$(UPDATER_RESOURCE_NAME)'
+
+        az deployment group create -n "$($deploymentName)" `
+            --resource-group  "$($resourceGroupName)" `
+            --template-file deploy/Services/api.bicep `
+            --parameters acrName="$($acrName)" imageTag="$($imageTag)" administratorLogin="$($administratorLogin)" administratorLoginPassword="$($administratorLoginPassword)" storageAccountName="$($storageAccountName)" serverName="$($serverName)" kubernetesEnvName="$($kubernetesEnvName)" workspaceName="$($workspaceName)" apiName="$($apiName)" updaterName="$($updaterName)"
+  - task: PowerShell@2
+    displayName: 'Upload Images'
+    inputs:
+      targetType: 'inline'
+      script: |
+        cd deploy/Images
+        ./DeployImages.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_ACCOUNT_NAME)
