@@ -31,9 +31,5 @@ steps:
       command: 'publish'
       publishWebProjects: false
       projects: 'src/Services/Podcasts/Podcast.Updater.Worker/Podcast.Updater.Worker.csproj'
-      arguments: '-c Release -r linux-x64  -o $(Build.ArtifactStagingDirectory)'
+      arguments: '-c Release -r linux-x64  -o $(Build.ArtifactStagingDirectory) -p ContainerRegistry=$(ACR_NAME).azurecr.io -p ContainerImageTag=$(Build.BuildNumber)'
       zipAfterPublish: True
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)' 
-      artifactName: 'Test'
