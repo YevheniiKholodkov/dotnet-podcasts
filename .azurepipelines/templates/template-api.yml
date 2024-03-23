@@ -73,6 +73,8 @@ steps:
             --resource-group  "$($resourceGroupName)" `
             --template-file deploy/Services/api.bicep `
             --parameters acrName="$($acrName)" imageTag="$($imageTag)" administratorLogin="$($administratorLogin)" administratorLoginPassword="$($administratorLoginPassword)" storageAccountName="$($storageAccountName)" serverName="$($serverName)" kubernetesEnvName="$($kubernetesEnvName)" workspaceName="$($workspaceName)" apiName="$($apiName)" updaterName="$($updaterName)"
+        if( $LASTEXITCODE -ne 0 ) { exit -1 }
+
   - task: PowerShell@2
     displayName: 'Upload Images'
     inputs:
