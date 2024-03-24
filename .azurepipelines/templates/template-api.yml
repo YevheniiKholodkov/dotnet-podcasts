@@ -83,8 +83,8 @@ steps:
       storage: $(STORAGE_NAME)
       ContainerName: covers
       AdditionalArgumentsForBlobCopy: |
-      --recursive=true `
-      --overwrite=true
+        --recursive=true `
+        --overwrite=true
   # - task: AzureCLI@2
   #   displayName: 'Upload Images'
   #   inputs:
