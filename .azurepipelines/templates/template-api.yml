@@ -75,10 +75,12 @@ steps:
             --parameters acrName="$($acrName)" imageTag="$($imageTag)" administratorLogin="$($administratorLogin)" administratorLoginPassword="$($administratorLoginPassword)" storageAccountName="$($storageAccountName)" serverName="$($serverName)" kubernetesEnvName="$($kubernetesEnvName)" workspaceName="$($workspaceName)" apiName="$($apiName)" updaterName="$($updaterName)"
         if( $LASTEXITCODE -ne 0 ) { exit -1 }
 
-  - task: PowerShell@2
+  - task: AzureCLI@2
     displayName: 'Upload Images'
     inputs:
-      targetType: 'inline'
-      script: |
+      azureSubscription: AzurePodcastConnection
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
         cd deploy/Images
         ./Deploy-Images.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_NAME)
