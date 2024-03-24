@@ -60,6 +60,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
   properties: {
     accessTier: 'Hot'
+    allowBlobPublicAccess: true
   }
 }
 
