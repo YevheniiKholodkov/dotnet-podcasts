@@ -1,0 +1,40 @@
+variables:
+  - name: PodcastApi.BaseAddress
+    value: $(PODCAST_API_URL)
+  - name: API_RESOURCE_NAME
+    value: 'https$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether'
+
+steps:
+  - checkout: self
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '8.0.x'
+  - task: DotNetCoreCLI@2
+    displayName: 'Install wasm-tools'
+    inputs:
+      command: custom
+      custom: workload
+      arguments: install wasm-tools
+  - task: AzureCLI@2
+    displayName: 'Login to Azure'
+    inputs:
+      azureSubscription: AzurePodcastConnection
+  - task: AzurePowerShell@5
+    displayName: 'Set backend env variables'
+    inputs:
+      azureSubscription: AzurePodcastConnection
+      ScriptType: InlineScript
+      Inline: |
+        az extension add --name containerapp
+        $apiUrl = "https$(az containerapp show -g $(AZURE_RESOURCE_GROUP_NAME) -n $(API_RESOURCE_NAME) -o tsv --query properties.configuration.ingress.fqdn)"
+        echo "##vso[task.setvariable variable=PODCAST_API_URL;]$apiUrl" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+
+  - task: FileTransform@2
+    inputs:
+      folderPath: 'src/Web/Client/wwwroot/'
+      fileType: 'json'
+      targetFiles: 'appsettings.json'
+    env:
+      PodcastApi.BaseAddress: $(PODCAST_API_URL)
+      ListenTogetherHub: "https$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether"

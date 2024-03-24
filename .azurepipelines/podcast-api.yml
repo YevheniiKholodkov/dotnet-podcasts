@@ -2,12 +2,12 @@ trigger:
   branches:
     include:
       - main
-      - ykholodkov/test_azurepiplines
   paths:
     include:
       - "src/Services/Podcasts/**"
       - "deploy/Services/api.bicep"
-      - ".github/workflows/podcast-api.yml"
+      - ".azurepipelines/podcast-api.yml"
+      - ".azurepipelines/templates/template-api.yml"
 
 pr:
   branches:
@@ -16,7 +16,8 @@ pr:
   paths:
     include:
       - "src/Services/Podcasts/**"
-      - ".github/workflows/podcast-api.yml"
+      - ".azurepipelines/podcast-api.yml"
+      - ".azurepipelines/templates/template-api.yml"
 
 variables:
   - group: 'PodcastProd'
