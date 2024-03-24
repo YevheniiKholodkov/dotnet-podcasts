@@ -58,7 +58,7 @@ steps:
       inlineScript: |
         $deploymentName = 'adobgtask$(Build.BuildNumber)'
         $resourceGroupName = '$(AZURE_RESOURCE_GROUP_NAME)'
-        $arcName = '$(ACR_NAME)'
+        $acrName = '$(ACR_NAME)'
         $imageTag = '$(Build.BuildNumber)'
         $administratorLogin = '$(PODCASTDB_USER_LOGIN)'
         $administratorLoginPassword = '$(PODCASTDB_USER_PASSWORD)'
