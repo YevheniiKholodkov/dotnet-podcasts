@@ -81,4 +81,4 @@ steps:
       targetType: 'inline'
       script: |
         cd deploy/Images
-        ./DeployImages.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_ACCOUNT_NAME)
+        ./DeployImages.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_NAME)
