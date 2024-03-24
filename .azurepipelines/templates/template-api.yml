@@ -74,13 +74,23 @@ steps:
             --template-file deploy/Services/api.bicep `
             --parameters acrName="$($acrName)" imageTag="$($imageTag)" administratorLogin="$($administratorLogin)" administratorLoginPassword="$($administratorLoginPassword)" storageAccountName="$($storageAccountName)" serverName="$($serverName)" kubernetesEnvName="$($kubernetesEnvName)" workspaceName="$($workspaceName)" apiName="$($apiName)" updaterName="$($updaterName)"
         if( $LASTEXITCODE -ne 0 ) { exit -1 }
-
-  - task: AzureCLI@2
+  - task: AzureFileCopy@4
     displayName: 'Upload Images'
     inputs:
+      SourcePath: ./deploy/Images/Covers
       azureSubscription: AzurePodcastConnection
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        cd deploy/Images
-        ./Deploy-Images.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_NAME)
+      Destination: AzureBlob
+      storage: $(STORAGE_NAME)
+      ContainerName: covers
+      AdditionalArgumentsForBlobCopy: |
+      --recursive=true `
+      --overwrite=true
+  # - task: AzureCLI@2
+  #   displayName: 'Upload Images'
+  #   inputs:
+  #     azureSubscription: AzurePodcastConnection
+  #     scriptType: 'pscore'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: |
+  #       cd deploy/Images
+  #       ./Deploy-Images.ps1 -resourceGroup $(AZURE_RESOURCE_GROUP_NAME) -storageName $(STORAGE_NAME)
