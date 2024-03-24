@@ -62,7 +62,7 @@ steps:
         $imageTag = '$(Build.BuildNumber)'
         $administratorLogin = '$(PODCASTDB_USER_LOGIN)'
         $administratorLoginPassword = '$(PODCASTDB_USER_PASSWORD)'
-        $storageAccountName = '$(STORAGE_ACCOUNT_NAME)'
+        $storageAccountName = '$(STORAGE_NAME)'
         $serverName = '$(PODCASTDB_SERVER_NAME)'
         $kubernetesEnvName = '$(KUBERNETES_ENV_NAME)'
         $workspaceName = '$(WORKSPACE_NAME)'
