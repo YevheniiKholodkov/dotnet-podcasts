@@ -1,0 +1,67 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "src/Web/**"
+      - ".azurepipelines/podcast-web.yml"
+      - ".azurepipelines/templates/template-web.yml"
+      - "deploy/Web/web.bicep"
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "src/Web/**"
+      - ".azurepipelines/podcast-web.yml"
+      - ".azurepipelines/templates/template-web.yml"
+      - "deploy/Web/web.bicep"
+
+jobs:
+- job: buildDeployProd
+  displayName: Build and deploy main branch to Production environment
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/ykholodkov/test_azurepiplines')
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - template: templates/template-web.yml
+
+- job: test
+  pool:
+    vmImage: 'ubuntu-latest'
+  displayName: Run tests
+  condition: always()
+  timeoutInMinutes: 60
+  container: mcr.microsoft.com/playwright:v1.28.1-focal
+  variables:
+    BASEURL: https://$(WEBAPP_NAME).azurewebsites.net 
+  steps:
+  - task: UseNode@1
+    inputs:
+      versionSpec: '14.x'
+
+  - script: npm ci
+    displayName: Install dependencies
+
+  - script: |
+      npx playwright install msedge
+      HOME=/root npx playwright test
+    displayName: Run Playwright tests
+
+  - task: PublishTestResults@2
+    displayName: Create test summary
+    condition: always()
+    inputs:
+      testResultsFiles: 'src/Web/E2E/test-results/junit.xml'
+      testRunTitle: 'Playwright Test Results'
+
+  - task: PublishPipelineArtifact@1
+    displayName: Upload HTML report
+    condition: always()
+    inputs:
+      targetPath: 'src/Web/E2E/playwright-report/'
+      artifactName: 'playwright-report'
+      retentionDays: 30
