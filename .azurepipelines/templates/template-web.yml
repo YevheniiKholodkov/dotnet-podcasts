@@ -2,7 +2,7 @@ variables:
   - name: PodcastApi.BaseAddress
     value: $(PODCAST_API_URL)
   - name: API_RESOURCE_NAME
-    value: 'https$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether'
+    value: 'https://$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether'
 
 steps:
   - checkout: self
@@ -28,7 +28,7 @@ steps:
       Inline: |
         az extension add --name containerapp
         $apiUrl = "https$(az containerapp show -g $(AZURE_RESOURCE_GROUP_NAME) -n $(API_RESOURCE_NAME) -o tsv --query properties.configuration.ingress.fqdn)"
-        echo "##vso[task.setvariable variable=PODCAST_API_URL;]$apiUrl" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+        echo "##vso[task.setvariable variable=PODCAST_API_URL;]$apiUrl"
 
   - task: FileTransform@2
     inputs:
@@ -37,4 +37,23 @@ steps:
       targetFiles: 'appsettings.json'
     env:
       PodcastApi.BaseAddress: $(PODCAST_API_URL)
-      ListenTogetherHub: "https$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether"
+      ListenTogetherHub: "https://$(HUB_WEBAPP_NAME).azurewebsites.net/listentogether"
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build'
+    inputs:
+      command: build
+      projects: 'src/Web/Server'
+      arguments: '--configuration Release'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/Web/Server'
+      arguments: '--configuration Release --output web'
+      zipAfterPublish: true
+
+  - publish: $(Build.SourcesDirectory)/src/Web/Server/web
+    artifact: drop
